@@ -7,23 +7,20 @@
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
-
-
-void cec14_test_func(double *, double *,int,int,int);
-
-double *OShift,*M,*y,*z,*x_bound;
-int ini_flag=0,n_flag,func_flag,*SS;
+#include <vector>
 
 
 int main() {
     int i,j,k,n,m,func_num;
-    double *f,*x;
+    double *f;
     FILE *fpt;
     char FileName[30];
     m=2;
     n=10;
     char x_str[40];
-    x=(double *)malloc(m*n*sizeof(double));
+
+    std::vector<double> x(m*n, 0);
+
     f=(double *)malloc(sizeof(double)  *  m);
     for (i = 0; i < 30; i++)
     {
@@ -34,9 +31,6 @@ int main() {
         {
             printf("\n Error: Cannot open input file for reading \n");
         }
-
-        if (x==NULL)
-            printf("\nError: there is insufficient memory available!\n");
 
         for(k=0;k<n;k++)
         {
@@ -56,7 +50,7 @@ int main() {
 
         for (k = 0; k < 1; k++)
         {
-            cec14_test_func(x, f, n, m, func_num);
+            cec14_test_func(x.data(), f, n, m, func_num);
             for (j = 0; j < 2; j++)
             {
                 printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);
@@ -65,13 +59,6 @@ int main() {
         }
 
     }
-    free(x);
-    free(f);
-    free(y);
-    free(z);
-    free(M);
-    free(OShift);
-    free(x_bound);
 
     return 0;
 }

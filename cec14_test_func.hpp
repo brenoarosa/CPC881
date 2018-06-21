@@ -8,11 +8,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
+#include <vector>
 
 #define INF 1.0e99
 #define EPS 1.0e-14
 #define E  2.7182818284590452353602874713526625
 #define PI 3.1415926535897932384626433832795029
+
+typedef std::vector<double> vector_double;
 
 void sphere_func (double *, double *, int , double *,double *, int, int); /* Sphere */
 void ellips_func(double *, double *, int , double *,double *, int, int); /* Ellipsoidal */
@@ -57,13 +60,13 @@ void asyfunc (double *, double *x, int, double);
 void oszfunc (double *, double *, int);
 void cf_cal(double *, double *, int, double *,double *,double *,double *,int);
 
-extern double *OShift,*M,*y,*z,*x_bound;
-extern int ini_flag,n_flag,func_flag,*SS;
+double *OShift,*M,*z,*x_bound;
+int ini_flag=0,n_flag,func_flag,*SS;
 char aux_reader[40];
+std::vector<double> y;
 
 
-void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
-{
+void cec14_test_func(double *x, double *f, int nx, int mx, int func_num) {
     int cf_num=10,i,j;
     if (ini_flag==1)
     {
@@ -79,10 +82,10 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
         char FileName[256];
         free(M);
         free(OShift);
-        free(y);
         free(z);
         free(x_bound);
-        y=(double *)malloc(sizeof(double)  *  nx);
+        //y=(double *)malloc(sizeof(double)  *  nx);
+        y.reserve(nx);
         z=(double *)malloc(sizeof(double)  *  nx);
         x_bound=(double *)malloc(sizeof(double)  *  nx);
         for (i=0; i<nx; i++)
@@ -348,7 +351,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 
         }
 
-    }
+}
 
     void sphere_func (double *x, double *f, int nx, double *Os, double *Mr, int s_flag, int r_flag) /* Sphere */
     {
@@ -604,7 +607,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
         mu1=-pow((mu0*mu0-d)/s,0.5);
 
         if (s_flag==1)
-            shiftfunc(x, y, nx, Os);
+            shiftfunc(x, y.data(), nx, Os);
         else
         {
             for (i=0; i<nx; i++)//shrink to the orginal search range
@@ -642,7 +645,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
 
         if (r_flag==1)
         {
-            rotatefunc(z, y, nx, Mr);
+            rotatefunc(z, y.data(), nx, Mr);
             for (i=0; i<nx; i++)
             {
                 tmp+=cos(2.0*PI*y[i]);
@@ -1200,12 +1203,12 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
         {
             if (r_flag==1)
             {
-                shiftfunc(x, y, nx, Os);
+                shiftfunc(x, y.data(), nx, Os);
                 for (i=0; i<nx; i++)//shrink to the original search range
                 {
                     y[i]=y[i]*sh_rate;
                 }
-                rotatefunc(y, sr_x, nx, Mr);
+                rotatefunc(y.data(), sr_x, nx, Mr);
             }
             else
             {
@@ -1225,7 +1228,7 @@ void cec14_test_func(double *x, double *f, int nx, int mx,int func_num)
                 {
                     y[i]=x[i]*sh_rate;
                 }
-                rotatefunc(y, sr_x, nx, Mr);
+                rotatefunc(y.data(), sr_x, nx, Mr);
             }
             else
             for (i=0; i<nx; i++)//shrink to the original search range
