@@ -22,10 +22,11 @@ int main() {
     std::vector<double> x(m*n, 0);
 
     f=(double *)malloc(sizeof(double)  *  m);
-    CEC2014 objective_instance = CEC2014();
     for (i = 0; i < 30; i++)
     {
         func_num=i+1;
+        CEC2014 objective_instance = CEC2014(func_num, n);
+
         sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
         fpt = fopen(FileName,"r");
         if (fpt==NULL)
@@ -51,7 +52,7 @@ int main() {
 
         for (k = 0; k < 1; k++)
         {
-            objective_instance.cec14_test_func(x.data(), f, n, m, func_num);
+            objective_instance.fitness(x.data(), f, n, m);
             for (j = 0; j < 2; j++)
             {
                 printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);

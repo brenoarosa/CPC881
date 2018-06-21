@@ -9,6 +9,7 @@
 #include <math.h>
 #include <malloc.h>
 #include <vector>
+#include <stdexcept>
 
 #define INF 1.0e99
 #define EPS 1.0e-14
@@ -17,303 +18,297 @@
 
 typedef std::vector<double> vector_double;
 
-double *OShift,*M,*z,*x_bound;
-int ini_flag=0,n_flag,func_flag,*SS;
-char aux_reader[40];
-vector_double y;
-
 
 class CEC2014 {
 
 public:
 
-    // Constructor
-    CEC2014() {}
+    vector_double y;
+    vector_double x_bound;
+    char aux_reader[40];
+    int ini_flag=0,n_flag,func_flag,*SS;
+    double *OShift;
+    double *M;
+    double *z;
+    int nx;
+    int func_num;
 
-    void cec14_test_func(double *x, double *f, int nx, int mx, int func_num) {
-        int cf_num=10,i,j;
-        if (ini_flag==1)
+
+    // Constructor
+    CEC2014(int prob_id, int dim) {
+
+        func_num = prob_id;
+        nx = dim;
+
+        if (!(dim == 2u || dim == 10u || dim == 20u || dim == 30u || dim == 50u || dim == 100u)) {
+            throw std::invalid_argument("CEC2014 test functions are only defined for dimensions: 2,10,20,30,50,100.");
+        }
+
+        if ((func_num < 1) && (func_num > 30)) {
+            throw std::invalid_argument("CEC2014 test functions have ids between 1 and 30.");
+        }
+
+        if (nx==2&&((func_num>=17&&func_num<=22)||(func_num>=29&&func_num<=30)))
         {
-            if ((n_flag!=nx)||(func_flag!=func_num))
+            throw std::invalid_argument("hf01,hf02,hf03,hf04,hf05,hf06,cf07&cf08 are NOT defined for D=2.");
+        }
+
+        z = (double *)malloc(sizeof(double)  *  nx);
+        x_bound.reserve(nx);
+        y.reserve(nx);
+        std::fill(x_bound.begin(), x_bound.end(), 100.0);
+
+
+
+        int cf_num=10;
+        int i,j;
+
+        FILE *fpt;
+        char FileName[256];
+
+        /* Load Matrix M*/
+        sprintf(FileName, "input_data/M_%d_D%d.txt", func_num,nx);
+        fpt = fopen(FileName,"r");
+        if (fpt==NULL) {
+            throw std::runtime_error("Cannot open input file for reading");
+        }
+
+        if (func_num < 23) {
+            M=(double*)malloc(nx*nx*sizeof(double));
+            if (M==NULL)
+                printf("\nError: there is insufficient memory available!\n");
+            for (i=0; i<nx*nx; i++)
             {
-                ini_flag=0;
+                fscanf(fpt, "%s", aux_reader);
+                M[i] = atof(aux_reader);
             }
         }
 
-        if (ini_flag==0)
-        {
-            FILE *fpt;
-            char FileName[256];
-            free(M);
-            free(OShift);
-            free(z);
-            free(x_bound);
-            y.reserve(nx);
-            z=(double *)malloc(sizeof(double)  *  nx);
-            x_bound=(double *)malloc(sizeof(double)  *  nx);
-            for (i=0; i<nx; i++)
-                x_bound[i]=100.0;
-
-            if (!(nx==2||nx==10||nx==20||nx==30||nx==50||nx==100))
+        else {
+            M=(double*)malloc(cf_num*nx*nx*sizeof(double));
+            if (M==NULL)
+                printf("\nError: there is insufficient memory available!\n");
+            for (i=0; i<cf_num*nx*nx; i++)
             {
-                printf("\nError: Test functions are only defined for D=2,10,20,30,50,100.\n");
+                fscanf(fpt, "%s", aux_reader);
+                M[i] = atof(aux_reader);
             }
-            if (nx==2&&((func_num>=17&&func_num<=22)||(func_num>=29&&func_num<=30)))
+        }
+        fclose(fpt);
+
+        /* Load shift_data */
+        sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
+        fpt = fopen(FileName,"r");
+        if (fpt==NULL) {
+            throw std::runtime_error("Cannot open input file for reading");
+        }
+
+        if (func_num<23) {
+            OShift=(double *)malloc(nx*sizeof(double));
+            if (OShift==NULL)
+            printf("\nError: there is insufficient memory available!\n");
+            for(i=0;i<nx;i++)
             {
-                printf("\nError: hf01,hf02,hf03,hf04,hf05,hf06,cf07&cf08 are NOT defined for D=2.\n");
+                fscanf(fpt, "%s", aux_reader);
+                OShift[i] = atof(aux_reader);
+            }
+        }
+
+        else {
+            OShift=(double *)malloc(nx*cf_num*sizeof(double));
+            if (OShift==NULL)
+            printf("\nError: there is insufficient memory available!\n");
+            for(i=0;i<cf_num-1;i++)
+            {
+                for (j=0;j<nx;j++)
+                {
+                    fscanf(fpt, "%s", aux_reader);
+                    OShift[i*nx+j] = atof(aux_reader);
+                }
+                fscanf(fpt,"%*[^\n]%*c");
+            }
+            for (j=0;j<nx;j++)
+            {
+                fscanf(fpt, "%s", aux_reader);
+                OShift[(cf_num-1)*nx+j] = atof(aux_reader);
             }
 
-            /* Load Matrix M*/
-            sprintf(FileName, "input_data/M_%d_D%d.txt", func_num,nx);
+        }
+        fclose(fpt);
+
+
+        /* Load Shuffle_data */
+
+        if ((func_num >= 17) && (func_num <= 22)) {
+            sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
             fpt = fopen(FileName,"r");
-            if (fpt==NULL)
-            {
-                printf("\n Error: Cannot open input file for reading \n");
+            if (fpt==NULL) {
+                throw std::runtime_error("Cannot open input file for reading");
             }
-            if (func_num<23)
+            SS=(int *)malloc(nx*sizeof(int));
+            if (SS==NULL)
+                printf("\nError: there is insufficient memory available!\n");
+            for(i=0;i<nx;i++)
             {
-                M=(double*)malloc(nx*nx*sizeof(double));
-                if (M==NULL)
-                    printf("\nError: there is insufficient memory available!\n");
-                for (i=0; i<nx*nx; i++)
-                {
-                    fscanf(fpt, "%s", aux_reader);
-                    M[i] = atof(aux_reader);
-                }
-            }
-            else
-            {
-                M=(double*)malloc(cf_num*nx*nx*sizeof(double));
-                if (M==NULL)
-                    printf("\nError: there is insufficient memory available!\n");
-                for (i=0; i<cf_num*nx*nx; i++)
-                {
-                    fscanf(fpt, "%s", aux_reader);
-                    M[i] = atof(aux_reader);
-                }
+                fscanf(fpt,"%d",&SS[i]);
             }
             fclose(fpt);
-
-                /* Load shift_data */
-                sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
-                fpt = fopen(FileName,"r");
-                if (fpt==NULL)
-                {
-                    printf("\n Error: Cannot open input file for reading \n");
-                }
-
-                if (func_num<23)
-                {
-                    OShift=(double *)malloc(nx*sizeof(double));
-                    if (OShift==NULL)
-                    printf("\nError: there is insufficient memory available!\n");
-                    for(i=0;i<nx;i++)
-                    {
-                        fscanf(fpt, "%s", aux_reader);
-                        OShift[i] = atof(aux_reader);
-                    }
-                }
-                else
-                {
-                    OShift=(double *)malloc(nx*cf_num*sizeof(double));
-                    if (OShift==NULL)
-                    printf("\nError: there is insufficient memory available!\n");
-                    for(i=0;i<cf_num-1;i++)
-                    {
-                        for (j=0;j<nx;j++)
-                        {
-                            fscanf(fpt, "%s", aux_reader);
-                            OShift[i*nx+j] = atof(aux_reader);
-                        }
-                        fscanf(fpt,"%*[^\n]%*c");
-                    }
-                    for (j=0;j<nx;j++)
-                    {
-                        fscanf(fpt, "%s", aux_reader);
-                        OShift[(cf_num-1)*nx+j] = atof(aux_reader);
-                    }
-
-                }
-                fclose(fpt);
-
-
-                /* Load Shuffle_data */
-
-                if (func_num>=17&&func_num<=22)
-                {
-                    sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
-                    fpt = fopen(FileName,"r");
-                    if (fpt==NULL)
-                    {
-                        printf("\n Error: Cannot open input file for reading \n");
-                    }
-                    SS=(int *)malloc(nx*sizeof(int));
-                    if (SS==NULL)
-                        printf("\nError: there is insufficient memory available!\n");
-                    for(i=0;i<nx;i++)
-                    {
-                        fscanf(fpt,"%d",&SS[i]);
-                    }
-                    fclose(fpt);
-                }
-                else if (func_num==29||func_num==30)
-                {
-                    sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
-                    fpt = fopen(FileName,"r");
-                    if (fpt==NULL)
-                    {
-                        printf("\n Error: Cannot open input file for reading \n");
-                    }
-                    SS=(int *)malloc(nx*cf_num*sizeof(int));
-                    if (SS==NULL)
-                        printf("\nError: there is insufficient memory available!\n");
-                    for(i=0;i<nx*cf_num;i++)
-                    {
-                        fscanf(fpt,"%d",&SS[i]);
-                    }
-                    fclose(fpt);
-                }
-
-
-                n_flag=nx;
-                func_flag=func_num;
-                ini_flag=1;
-                //printf("Function has been initialized!\n");
+        }
+        else if ((func_num == 29) || (func_num == 30)) {
+            sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
+            fpt = fopen(FileName,"r");
+            if (fpt==NULL) {
+                throw std::runtime_error("Cannot open input file for reading");
             }
-
-
-            for (i = 0; i < mx; i++)
+            SS=(int *)malloc(nx*cf_num*sizeof(int));
+            if (SS==NULL)
+                printf("\nError: there is insufficient memory available!\n");
+            for(i=0;i<nx*cf_num;i++)
             {
-                switch(func_num)
-                {
-                case 1:
-                    ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=100.0;
-                    break;
-                case 2:
-                    bent_cigar_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=200.0;
-                    break;
-                case 3:
-                    discus_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=300.0;
-                    break;
-                case 4:
-                    rosenbrock_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=400.0;
-                    break;
-                case 5:
-                    ackley_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=500.0;
-                    break;
-                case 6:
-                    weierstrass_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=600.0;
-                    break;
-                case 7:
-                    griewank_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=700.0;
-                    break;
-                case 8:
-                    rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
-                    f[i]+=800.0;
-                    break;
-                case 9:
-                    rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=900.0;
-                    break;
-                case 10:
-                    schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
-                    f[i]+=1000.0;
-                    break;
-                case 11:
-                    schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1100.0;
-                    break;
-                case 12:
-                    katsuura_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1200.0;
-                    break;
-                case 13:
-                    happycat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1300.0;
-                    break;
-                case 14:
-                    hgbat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1400.0;
-                    break;
-                case 15:
-                    grie_rosen_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1500.0;
-                    break;
-                case 16:
-                    escaffer6_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                    f[i]+=1600.0;
-                    break;
-                case 17:
-                    hf01(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=1700.0;
-                    break;
-                case 18:
-                    hf02(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=1800.0;
-                    break;
-                case 19:
-                    hf03(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=1900.0;
-                    break;
-                case 20:
-                    hf04(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=2000.0;
-                    break;
-                case 21:
-                    hf05(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=2100.0;
-                    break;
-                case 22:
-                    hf06(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                    f[i]+=2200.0;
-                    break;
-                case 23:
-                    cf01(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2300.0;
-                    break;
-                case 24:
-                    cf02(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2400.0;
-                    break;
-                case 25:
-                    cf03(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2500.0;
-                    break;
-                case 26:
-                    cf04(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2600.0;
-                    break;
-                case 27:
-                    cf05(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2700.0;
-                    break;
-                case 28:
-                    cf06(&x[i*nx],&f[i],nx,OShift,M,1);
-                    f[i]+=2800.0;
-                    break;
-                case 29:
-                    cf07(&x[i*nx],&f[i],nx,OShift,M,SS,1);
-                    f[i]+=2900.0;
-                    break;
-                case 30:
-                    cf08(&x[i*nx],&f[i],nx,OShift,M,SS,1);
-                    f[i]+=3000.0;
-                    break;
-                default:
-                    printf("\nError: There are only 30 test functions in this test suite!\n");
-                    f[i] = 0.0;
-                    break;
-                }
-
+                fscanf(fpt,"%d",&SS[i]);
             }
+            fclose(fpt);
+        }
+    }
 
+    virtual ~CEC2014() {
+        free(z);
+        free(M);
+        free(OShift);
+        free(SS);
+    }
+
+    void fitness(double *x, double *f, int nx, int mx) {
+        int cf_num=10;
+        int i,j;
+
+        for (i = 0; i < mx; i++) {
+            switch(func_num)
+            {
+            case 1:
+                ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=100.0;
+                break;
+            case 2:
+                bent_cigar_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=200.0;
+                break;
+            case 3:
+                discus_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=300.0;
+                break;
+            case 4:
+                rosenbrock_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=400.0;
+                break;
+            case 5:
+                ackley_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=500.0;
+                break;
+            case 6:
+                weierstrass_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=600.0;
+                break;
+            case 7:
+                griewank_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=700.0;
+                break;
+            case 8:
+                rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
+                f[i]+=800.0;
+                break;
+            case 9:
+                rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=900.0;
+                break;
+            case 10:
+                schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
+                f[i]+=1000.0;
+                break;
+            case 11:
+                schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1100.0;
+                break;
+            case 12:
+                katsuura_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1200.0;
+                break;
+            case 13:
+                happycat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1300.0;
+                break;
+            case 14:
+                hgbat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1400.0;
+                break;
+            case 15:
+                grie_rosen_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1500.0;
+                break;
+            case 16:
+                escaffer6_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
+                f[i]+=1600.0;
+                break;
+            case 17:
+                hf01(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=1700.0;
+                break;
+            case 18:
+                hf02(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=1800.0;
+                break;
+            case 19:
+                hf03(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=1900.0;
+                break;
+            case 20:
+                hf04(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=2000.0;
+                break;
+            case 21:
+                hf05(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=2100.0;
+                break;
+            case 22:
+                hf06(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
+                f[i]+=2200.0;
+                break;
+            case 23:
+                cf01(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2300.0;
+                break;
+            case 24:
+                cf02(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2400.0;
+                break;
+            case 25:
+                cf03(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2500.0;
+                break;
+            case 26:
+                cf04(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2600.0;
+                break;
+            case 27:
+                cf05(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2700.0;
+                break;
+            case 28:
+                cf06(&x[i*nx],&f[i],nx,OShift,M,1);
+                f[i]+=2800.0;
+                break;
+            case 29:
+                cf07(&x[i*nx],&f[i],nx,OShift,M,SS,1);
+                f[i]+=2900.0;
+                break;
+            case 30:
+                cf08(&x[i*nx],&f[i],nx,OShift,M,SS,1);
+                f[i]+=3000.0;
+                break;
+            default:
+                throw std::runtime_error("Invalid function ID.");
+            }
+        }
     }
 
 
