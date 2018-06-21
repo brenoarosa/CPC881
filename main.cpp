@@ -4,7 +4,6 @@
   Dec. 12th 2013
 */
 
-//#include <WINDOWS.H>
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -23,6 +22,7 @@ int main() {
     char FileName[30];
     m=2;
     n=10;
+    char x_str[40];
     x=(double *)malloc(m*n*sizeof(double));
     f=(double *)malloc(sizeof(double)  *  m);
     for (i = 0; i < 30; i++)
@@ -40,8 +40,9 @@ int main() {
 
         for(k=0;k<n;k++)
         {
-                fscanf(fpt,"%Lf",&x[k]);
-                /*printf("%Lf\n",x[k]);*/
+                fscanf(fpt, "%s", x_str);
+                x[k] = atof(x_str);
+                //printf("%f\n",x[k]);
         }
 
         fclose(fpt);
@@ -49,16 +50,16 @@ int main() {
             for (j = 0; j < n; j++)
             {
                 x[1*n+j]=0.0;
-                /*printf("%Lf\n",x[1*n+j]);*/
+                //printf("%f\n",x[1*n+j]);
             }
 
 
         for (k = 0; k < 1; k++)
         {
-            cec14_test_func(x, f, n,m,func_num);
+            cec14_test_func(x, f, n, m, func_num);
             for (j = 0; j < 2; j++)
             {
-                printf(" f%d(x[%d]) = %Lf,",func_num,j+1,f[j]);
+                printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);
             }
             printf("\n");
         }
