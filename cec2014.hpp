@@ -23,13 +23,13 @@ class CEC2014 {
 
 public:
 
+    vector_double z;
     vector_double y;
     vector_double x_bound;
     char aux_reader[40];
     int *m_shuffle;
     double *m_origin_shift;
     double *m_rotation_matrix;
-    double *z;
     int nx;
     int func_num;
 
@@ -53,9 +53,9 @@ public:
             throw std::invalid_argument("hf01,hf02,hf03,hf04,hf05,hf06,cf07&cf08 are NOT defined for D=2.");
         }
 
-        z = (double *)malloc(sizeof(double)  *  nx);
         x_bound.reserve(nx);
         y.reserve(nx);
+        z.reserve(nx);
         std::fill(x_bound.begin(), x_bound.end(), 100.0);
 
 
@@ -170,7 +170,6 @@ public:
     }
 
     virtual ~CEC2014() {
-        free(z);
         free(m_rotation_matrix);
         free(m_origin_shift);
         if (((func_num >= 17) && (func_num <= 22)) || ((func_num == 29) || (func_num == 30))) {
@@ -317,7 +316,7 @@ private:
 
         int i;
         f[0] = 0.0;
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
         for (i=0; i<nx; i++)
         {
             f[0] += z[i]*z[i];
@@ -330,7 +329,7 @@ private:
 
         int i;
         f[0] = 0.0;
-        sr_func(x, z, nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
         for (i=0; i<nx; i++)
         {
            f[0] += pow(10.0,6.0*i/(nx-1))*z[i]*z[i];
@@ -341,7 +340,7 @@ private:
     void bent_cigar_func (double *x, double *f, int nx, double *Os,double *Mr, int s_flag, int r_flag) {
 
         int i;
-        sr_func(x, z, nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
 
         f[0] = z[0]*z[0];
         for (i=1; i<nx; i++)
@@ -356,7 +355,7 @@ private:
     void discus_func (double *x, double *f, int nx, double *Os,double *Mr, int s_flag, int r_flag) {
 
         int i;
-        sr_func(x, z, nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr,1.0, s_flag, r_flag); /* shift and rotate */
         f[0] = pow(10.0,6.0)*z[0]*z[0];
         for (i=1; i<nx; i++)
         {
@@ -369,7 +368,7 @@ private:
 
         int i;
         f[0] = 0.0;
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -385,7 +384,7 @@ private:
         int i;
         double tmp1,tmp2;
         f[0] = 0.0;
-        sr_func(x, z, nx, Os, Mr, 2.048/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 2.048/100.0, s_flag, r_flag); /* shift and rotate */
         z[0] += 1.0;//shift to orgin
         for (i=0; i<nx-1; i++)
         {
@@ -402,7 +401,7 @@ private:
         int i;
         double tmp;
         f[0] = 0.0;
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
         for (i=0; i<nx-1; i++)
         {
             z[i]=pow(y[i]*y[i]+y[i+1]*y[i+1],0.5);
@@ -420,7 +419,7 @@ private:
         sum1 = 0.0;
         sum2 = 0.0;
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -443,7 +442,7 @@ private:
         k_max = 20;
         f[0] = 0.0;
 
-        sr_func(x, z, nx, Os, Mr, 0.5/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 0.5/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -468,7 +467,7 @@ private:
         s = 0.0;
         p = 1.0;
 
-        sr_func(x, z, nx, Os, Mr, 600.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 600.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -484,7 +483,7 @@ private:
         int i;
         f[0] = 0.0;
 
-        sr_func(x, z, nx, Os, Mr, 5.12/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.12/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -503,7 +502,7 @@ private:
             y[i]=Os[i]+floor(2*(y[i]-Os[i])+0.5)/2;
         }
 
-        sr_func(x, z, nx, Os, Mr, 5.12/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.12/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -518,7 +517,7 @@ private:
         double tmp;
         f[0]=0.0;
 
-        sr_func(x, z, nx, Os, Mr, 1000.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1000.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -550,7 +549,7 @@ private:
         f[0]=1.0;
         tmp3=pow(1.0*nx,1.2);
 
-        sr_func(x, z, nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -615,7 +614,7 @@ private:
         tmp=0.0;
 
         if (r_flag==1) {
-            rotatefunc(z, y.data(), nx, Mr);
+            rotatefunc(z.data(), y.data(), nx, Mr);
             for (i=0; i<nx; i++) {
                 tmp+=cos(2.0*PI*y[i]);
             }
@@ -650,7 +649,7 @@ private:
         double temp,tmp1,tmp2;
         f[0]=0.0;
 
-        sr_func(x, z, nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         z[0] += 1.0;//shift to orgin
         for (i=0; i<nx-1; i++)
@@ -674,7 +673,7 @@ private:
         int i;
         double temp1, temp2;
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         f[0] = 0.0;
         for (i=0; i<nx-1; i++)
@@ -698,7 +697,7 @@ private:
         double alpha,r2,sum_z;
         alpha=1.0/8.0;
 
-        sr_func(x, z, nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         r2 = 0.0;
         sum_z=0.0;
@@ -719,7 +718,7 @@ private:
         double alpha,r2,sum_z;
         alpha=1.0/4.0;
 
-        sr_func(x, z, nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 5.0/100.0, s_flag, r_flag); /* shift and rotate */
 
         r2 = 0.0;
         sum_z=0.0;
@@ -753,7 +752,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -794,7 +793,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -836,7 +835,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++)
         {
@@ -878,7 +877,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++) {
             y[i]=z[S[i]-1];
@@ -919,7 +918,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++) {
             y[i]=z[S[i]-1];
@@ -963,7 +962,7 @@ private:
             G[i] = G[i-1]+G_nx[i-1];
         }
 
-        sr_func(x, z, nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
+        sr_func(x, z.data(), nx, Os, Mr, 1.0, s_flag, r_flag); /* shift and rotate */
 
         for (i=0; i<nx; i++) {
             y[i]=z[S[i]-1];
