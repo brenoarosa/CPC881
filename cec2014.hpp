@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <vector>
 #include <stdexcept>
+#include "cec2014_data.hpp"
 
 #define INF 1.0e99
 #define EPS 1.0e-14
@@ -83,20 +84,8 @@ public:
         data_file.close();
 
         /* Load shift_data */
-        name_stream.str("");
-        name_stream.clear();
-        name_stream << "input_data/shift_data_" << func_num << ".txt";
-        data_file_name = name_stream.str();
-
-        data_file.open(data_file_name.c_str());
-
-        if (!data_file.is_open()) {
-            throw std::runtime_error("Cannot open input file for reading");
-        }
-
-        std::istream_iterator<double> shift_start(data_file), shift_end;
-        m_origin_shift = std::vector<double>(shift_start, shift_end);
-        data_file.close();
+        auto loader_it = cec2014_data::shift_data.find(func_num);
+        m_origin_shift = loader_it->second;
 
         // Uses first nx elements of each line for multidimensional functions (id > 23)
         auto it = m_origin_shift.begin();
