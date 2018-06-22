@@ -146,10 +146,10 @@ public:
                 throw std::runtime_error("Cannot open input file for reading");
             }
             m_shuffle=(int *)malloc(nx*sizeof(int));
-            if (m_shuffle==NULL)
+            if (m_shuffle==NULL) {
                 printf("\nError: there is insufficient memory available!\n");
-            for(i=0;i<nx;i++)
-            {
+            }
+            for(i=0;i<nx;i++) {
                 fscanf(fpt,"%d",&m_shuffle[i]);
             }
             fclose(fpt);
@@ -161,10 +161,10 @@ public:
                 throw std::runtime_error("Cannot open input file for reading");
             }
             m_shuffle=(int *)malloc(nx*cf_num*sizeof(int));
-            if (m_shuffle==NULL)
+            if (m_shuffle==NULL) {
                 printf("\nError: there is insufficient memory available!\n");
-            for(i=0;i<nx*cf_num;i++)
-            {
+            }
+            for(i=0;i<nx*cf_num;i++) {
                 fscanf(fpt,"%d",&m_shuffle[i]);
             }
             fclose(fpt);
@@ -175,7 +175,9 @@ public:
         free(z);
         free(m_rotation_matrix);
         free(m_origin_shift);
-        free(m_shuffle);
+        if (((func_num >= 17) && (func_num <= 22)) || ((func_num == 29) || (func_num == 30))) {
+            free(m_shuffle);
+        }
     }
 
 
