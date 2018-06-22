@@ -5,6 +5,10 @@
 */
 
 
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <iterator>
 #include <stdio.h>
 #include <math.h>
 #include <malloc.h>
@@ -65,29 +69,20 @@ public:
         char FileName[256];
 
         /* Load Rotation Matrix */
-        sprintf(FileName, "input_data/M_%d_D%d.txt", func_num,nx);
-        fpt = fopen(FileName,"r");
-        if (fpt==NULL) {
+        std::ostringstream name_stream;
+        name_stream << "input_data/M_" << func_num << "_D" << nx << ".txt";
+        std::string data_file_name = name_stream.str();
+
+        std::ifstream data_file(data_file_name.c_str());
+
+        if (!data_file.is_open()) {
             throw std::runtime_error("Cannot open input file for reading");
         }
 
-        if (func_num < 23) {
-            m_rotation_matrix.reserve(nx*nx);
-            for (i=0; i<nx*nx; i++)
-            {
-                fscanf(fpt, "%s", aux_reader);
-                m_rotation_matrix[i] = atof(aux_reader);
-            }
-        }
+        std::istream_iterator<double> start(data_file), end;
+        m_rotation_matrix = std::vector<double>(start, end);
+        data_file.close();
 
-        else {
-            m_rotation_matrix.reserve(cf_num*nx*nx);
-            for (i=0; i<cf_num*nx*nx; i++) {
-                fscanf(fpt, "%s", aux_reader);
-                m_rotation_matrix[i] = atof(aux_reader);
-            }
-        }
-        fclose(fpt);
 
         /* Load shift_data */
         sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
