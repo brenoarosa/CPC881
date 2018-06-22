@@ -26,10 +26,10 @@ public:
     vector_double z;
     vector_double y;
     vector_double x_bound;
+    vector_double m_origin_shift;
+    vector_double m_rotation_matrix;
     char aux_reader[40];
     int *m_shuffle;
-    double *m_origin_shift;
-    vector_double m_rotation_matrix;
     int nx;
     int func_num;
 
@@ -98,10 +98,7 @@ public:
         }
 
         if (func_num<23) {
-            m_origin_shift=(double *)malloc(nx*sizeof(double));
-            if (m_origin_shift==NULL) {
-                throw std::runtime_error("Insufficient memory available!");
-            }
+            m_origin_shift.reserve(nx);
             for(i=0;i<nx;i++)
             {
                 fscanf(fpt, "%s", aux_reader);
@@ -110,10 +107,7 @@ public:
         }
 
         else {
-            m_origin_shift=(double *)malloc(nx*cf_num*sizeof(double));
-            if (m_origin_shift==NULL) {
-                throw std::runtime_error("Insufficient memory available!");
-            }
+            m_origin_shift.reserve(nx*cf_num);
             for(i=0;i<cf_num-1;i++)
             {
                 for (j=0;j<nx;j++)
@@ -167,7 +161,6 @@ public:
     }
 
     virtual ~CEC2014() {
-        free(m_origin_shift);
         if (((func_num >= 17) && (func_num <= 22)) || ((func_num == 29) || (func_num == 30))) {
             free(m_shuffle);
         }
@@ -184,123 +177,123 @@ public:
         vector_double f(1);
         switch(func_num) {
             case 1:
-                ellips_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                ellips_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=100.0;
                 break;
             case 2:
-                bent_cigar_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                bent_cigar_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=200.0;
                 break;
             case 3:
-                discus_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                discus_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=300.0;
                 break;
             case 4:
-                rosenbrock_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                rosenbrock_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=400.0;
                 break;
             case 5:
-                ackley_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                ackley_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=500.0;
                 break;
             case 6:
-                weierstrass_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                weierstrass_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=600.0;
                 break;
             case 7:
-                griewank_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                griewank_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=700.0;
                 break;
             case 8:
-                rastrigin_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,0);
+                rastrigin_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,0);
                 f[0]+=800.0;
                 break;
             case 9:
-                rastrigin_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                rastrigin_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=900.0;
                 break;
             case 10:
-                schwefel_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,0);
+                schwefel_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,0);
                 f[0]+=1000.0;
                 break;
             case 11:
-                schwefel_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                schwefel_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1100.0;
                 break;
             case 12:
-                katsuura_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                katsuura_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1200.0;
                 break;
             case 13:
-                happycat_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                happycat_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1300.0;
                 break;
             case 14:
-                hgbat_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                hgbat_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1400.0;
                 break;
             case 15:
-                grie_rosen_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                grie_rosen_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1500.0;
                 break;
             case 16:
-                escaffer6_func(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1,1);
+                escaffer6_func(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1,1);
                 f[0]+=1600.0;
                 break;
             case 17:
-                hf01(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf01(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=1700.0;
                 break;
             case 18:
-                hf02(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf02(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=1800.0;
                 break;
             case 19:
-                hf03(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf03(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=1900.0;
                 break;
             case 20:
-                hf04(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf04(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=2000.0;
                 break;
             case 21:
-                hf05(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf05(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=2100.0;
                 break;
             case 22:
-                hf06(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1,1);
+                hf06(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
                 f[0]+=2200.0;
                 break;
             case 23:
-                cf01(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf01(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2300.0;
                 break;
             case 24:
-                cf02(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf02(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2400.0;
                 break;
             case 25:
-                cf03(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf03(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2500.0;
                 break;
             case 26:
-                cf04(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf04(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2600.0;
                 break;
             case 27:
-                cf05(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf05(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2700.0;
                 break;
             case 28:
-                cf06(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), 1);
+                cf06(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), 1);
                 f[0]+=2800.0;
                 break;
             case 29:
-                cf07(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1);
+                cf07(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1);
                 f[0]+=2900.0;
                 break;
             case 30:
-                cf08(x.data(), f.data(), nx, m_origin_shift,m_rotation_matrix.data(), m_shuffle,1);
+                cf08(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1);
                 f[0]+=3000.0;
                 break;
             default:
