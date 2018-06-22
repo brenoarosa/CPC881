@@ -59,14 +59,13 @@ public:
         std::fill(x_bound.begin(), x_bound.end(), 100.0);
 
 
-
         int cf_num=10;
         int i,j;
 
         FILE *fpt;
         char FileName[256];
 
-        /* Load Matrix M*/
+        /* Load Rotation Matrix */
         sprintf(FileName, "input_data/M_%d_D%d.txt", func_num,nx);
         fpt = fopen(FileName,"r");
         if (fpt==NULL) {
@@ -138,7 +137,6 @@ public:
 
 
         /* Load Shuffle_data */
-
         if ((func_num >= 17) && (func_num <= 22)) {
             sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
             fpt = fopen(FileName,"r");
