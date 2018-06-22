@@ -12,7 +12,7 @@
 
 
 int main() {
-    int i,j,k,n,m,func_num;
+    int i,j,n,m,func_num;
     FILE *fpt;
     char FileName[30];
     m=2;
@@ -22,8 +22,7 @@ int main() {
     std::vector<vector_double> x(m, vector_double(n, 0));
     vector_double f(m, 0.0);
 
-    for (i = 0; i < 30; i++)
-    {
+    for (i = 0; i < 30; i++) {
         func_num=i+1;
         CEC2014 prob = CEC2014(func_num, n);
 

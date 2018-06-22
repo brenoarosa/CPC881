@@ -62,18 +62,17 @@ public:
         std::fill(x_bound.begin(), x_bound.end(), 100.0);
 
 
-        int cf_num=10;
-        int i,j;
-
-        FILE *fpt;
-        char FileName[256];
+        std::ostringstream name_stream;
+        std::string data_file_name;
+        std::ifstream data_file;
 
         /* Load Rotation Matrix */
-        std::ostringstream name_stream;
+        name_stream.str("");
+        name_stream.clear();
         name_stream << "input_data/M_" << func_num << "_D" << nx << ".txt";
-        std::string data_file_name = name_stream.str();
+        data_file_name = name_stream.str();
 
-        std::ifstream data_file(data_file_name.c_str());
+        data_file.open(data_file_name.c_str());
 
         if (!data_file.is_open()) {
             throw std::runtime_error("Cannot open input file for reading");
@@ -83,50 +82,43 @@ public:
         m_rotation_matrix = std::vector<double>(start, end);
         data_file.close();
 
-
         /* Load shift_data */
-        sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
-        fpt = fopen(FileName,"r");
-        if (fpt==NULL) {
+        name_stream.str("");
+        name_stream.clear();
+        name_stream << "input_data/shift_data_" << func_num << ".txt";
+        data_file_name = name_stream.str();
+
+        data_file.open(data_file_name.c_str());
+
+        if (!data_file.is_open()) {
             throw std::runtime_error("Cannot open input file for reading");
         }
 
-        if (func_num<23) {
-            m_origin_shift.reserve(nx);
-            for(i=0;i<nx;i++)
-            {
-                fscanf(fpt, "%s", aux_reader);
-                m_origin_shift[i] = atof(aux_reader);
+        std::istream_iterator<double> shift_start(data_file), shift_end;
+        m_origin_shift = std::vector<double>(shift_start, shift_end);
+        data_file.close();
+
+        // Uses first nx elements of each line for multidimensional functions (id > 23)
+        auto it = m_origin_shift.begin();
+        int i = -1;
+        while(it != m_origin_shift.end()) {
+            i++;
+            if((i % 100) >= nx) {
+                it = m_origin_shift.erase(it);
+            }
+            else {
+                ++it;
             }
         }
 
-        else {
-            m_origin_shift.reserve(nx*cf_num);
-            for(i=0;i<cf_num-1;i++)
-            {
-                for (j=0;j<nx;j++)
-                {
-                    fscanf(fpt, "%s", aux_reader);
-                    m_origin_shift[i*nx+j] = atof(aux_reader);
-                }
-                fscanf(fpt,"%*[^\n]%*c");
-            }
-            for (j=0;j<nx;j++)
-            {
-                fscanf(fpt, "%s", aux_reader);
-                m_origin_shift[(cf_num-1)*nx+j] = atof(aux_reader);
-            }
-
-        }
-        fclose(fpt);
-
-
+        /* Load shuffle data */
         if (((func_num >= 17) && (func_num <= 22)) || (func_num == 29) || (func_num == 30)) {
-            std::ostringstream name_stream;
+            name_stream.str("");
+            name_stream.clear();
             name_stream << "input_data/shuffle_data_" << func_num << "_D" << nx << ".txt";
-            std::string data_file_name = name_stream.str();
+            data_file_name = name_stream.str();
 
-            std::ifstream data_file(data_file_name.c_str());
+            data_file.open(data_file_name.c_str());
 
             if (!data_file.is_open()) {
                 throw std::runtime_error("Cannot open input file for reading");
