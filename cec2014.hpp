@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <vector>
 #include <stdexcept>
+#include "cec2014_data.hpp"
 
 #define INF 1.0e99
 #define EPS 1.0e-14
@@ -67,36 +68,15 @@ public:
         std::ifstream data_file;
 
         /* Load Rotation Matrix */
-        name_stream.str("");
-        name_stream.clear();
-        name_stream << "input_data/M_" << func_num << "_D" << nx << ".txt";
-        data_file_name = name_stream.str();
+        auto rotation_func_it = cec2014_data::rotation_data.find(func_num);
+        auto rotation_data_dim = rotation_func_it->second;
+        auto rotation_dim_it = rotation_data_dim.find(nx);
+        m_rotation_matrix = rotation_dim_it->second;
 
-        data_file.open(data_file_name.c_str());
-
-        if (!data_file.is_open()) {
-            throw std::runtime_error("Cannot open input file for reading");
-        }
-
-        std::istream_iterator<double> start(data_file), end;
-        m_rotation_matrix = std::vector<double>(start, end);
-        data_file.close();
 
         /* Load shift_data */
-        name_stream.str("");
-        name_stream.clear();
-        name_stream << "input_data/shift_data_" << func_num << ".txt";
-        data_file_name = name_stream.str();
-
-        data_file.open(data_file_name.c_str());
-
-        if (!data_file.is_open()) {
-            throw std::runtime_error("Cannot open input file for reading");
-        }
-
-        std::istream_iterator<double> shift_start(data_file), shift_end;
-        m_origin_shift = std::vector<double>(shift_start, shift_end);
-        data_file.close();
+        auto loader_it = cec2014_data::shift_data.find(func_num);
+        m_origin_shift = loader_it->second;
 
         // Uses first nx elements of each line for multidimensional functions (id > 23)
         auto it = m_origin_shift.begin();
@@ -113,20 +93,10 @@ public:
 
         /* Load shuffle data */
         if (((func_num >= 17) && (func_num <= 22)) || (func_num == 29) || (func_num == 30)) {
-            name_stream.str("");
-            name_stream.clear();
-            name_stream << "input_data/shuffle_data_" << func_num << "_D" << nx << ".txt";
-            data_file_name = name_stream.str();
-
-            data_file.open(data_file_name.c_str());
-
-            if (!data_file.is_open()) {
-                throw std::runtime_error("Cannot open input file for reading");
-            }
-
-            std::istream_iterator<int> start(data_file), end;
-            m_shuffle = std::vector<int>(start, end);
-            data_file.close();
+            auto shuffle_func_it = cec2014_data::shuffle_data.find(func_num);
+            auto shuffle_data_dim = shuffle_func_it->second;
+            auto shuffle_dim_it = shuffle_data_dim.find(nx);
+            m_shuffle = shuffle_dim_it->second;
         }
 
     }
