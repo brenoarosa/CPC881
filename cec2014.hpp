@@ -34,7 +34,6 @@ public:
     int func_num;
 
 
-    // Constructor
     CEC2014(int prob_id, int dim) {
 
         func_num = prob_id;

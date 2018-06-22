@@ -25,7 +25,7 @@ int main() {
     for (i = 0; i < 30; i++)
     {
         func_num=i+1;
-        CEC2014 objective_instance = CEC2014(func_num, n);
+        CEC2014 prob = CEC2014(func_num, n);
 
         sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
         fpt = fopen(FileName,"r");
@@ -48,7 +48,7 @@ int main() {
         }
 
         for (j = 0; j < m; j++) {
-            f[j] = objective_instance.fitness(x[j]);
+            f[j] = prob.fitness(x[j]);
         }
         for (j = 0; j < m; j++) {
             printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);
