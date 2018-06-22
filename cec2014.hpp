@@ -121,31 +121,22 @@ public:
         fclose(fpt);
 
 
-        /* Load Shuffle_data */
-        if ((func_num >= 17) && (func_num <= 22)) {
-            sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
-            fpt = fopen(FileName,"r");
-            if (fpt==NULL) {
+        if (((func_num >= 17) && (func_num <= 22)) || (func_num == 29) || (func_num == 30)) {
+            std::ostringstream name_stream;
+            name_stream << "input_data/shuffle_data_" << func_num << "_D" << nx << ".txt";
+            std::string data_file_name = name_stream.str();
+
+            std::ifstream data_file(data_file_name.c_str());
+
+            if (!data_file.is_open()) {
                 throw std::runtime_error("Cannot open input file for reading");
             }
-            m_shuffle.reserve(nx);
-            for(i=0;i<nx;i++) {
-                fscanf(fpt,"%d",&m_shuffle[i]);
-            }
-            fclose(fpt);
+
+            std::istream_iterator<int> start(data_file), end;
+            m_shuffle = std::vector<int>(start, end);
+            data_file.close();
         }
-        else if ((func_num == 29) || (func_num == 30)) {
-            sprintf(FileName, "input_data/shuffle_data_%d_D%d.txt", func_num, nx);
-            fpt = fopen(FileName,"r");
-            if (fpt==NULL) {
-                throw std::runtime_error("Cannot open input file for reading");
-            }
-            m_shuffle.reserve(nx*cf_num);
-            for(i=0;i<nx*cf_num;i++) {
-                fscanf(fpt,"%d",&m_shuffle[i]);
-            }
-            fclose(fpt);
-        }
+
     }
 
     std::pair<vector_double, vector_double> get_bounds() const {
