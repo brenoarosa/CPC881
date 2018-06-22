@@ -28,8 +28,8 @@ public:
     vector_double x_bound;
     vector_double m_origin_shift;
     vector_double m_rotation_matrix;
+    std::vector<int> m_shuffle;
     char aux_reader[40];
-    int *m_shuffle;
     int nx;
     int func_num;
 
@@ -134,10 +134,7 @@ public:
             if (fpt==NULL) {
                 throw std::runtime_error("Cannot open input file for reading");
             }
-            m_shuffle=(int *)malloc(nx*sizeof(int));
-            if (m_shuffle==NULL) {
-                throw std::runtime_error("Insufficient memory available!");
-            }
+            m_shuffle.reserve(nx);
             for(i=0;i<nx;i++) {
                 fscanf(fpt,"%d",&m_shuffle[i]);
             }
@@ -149,20 +146,11 @@ public:
             if (fpt==NULL) {
                 throw std::runtime_error("Cannot open input file for reading");
             }
-            m_shuffle=(int *)malloc(nx*cf_num*sizeof(int));
-            if (m_shuffle==NULL) {
-                throw std::runtime_error("Insufficient memory available!");
-            }
+            m_shuffle.reserve(nx*cf_num);
             for(i=0;i<nx*cf_num;i++) {
                 fscanf(fpt,"%d",&m_shuffle[i]);
             }
             fclose(fpt);
-        }
-    }
-
-    virtual ~CEC2014() {
-        if (((func_num >= 17) && (func_num <= 22)) || ((func_num == 29) || (func_num == 30))) {
-            free(m_shuffle);
         }
     }
 
@@ -241,27 +229,27 @@ public:
                 f[0]+=1600.0;
                 break;
             case 17:
-                hf01(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf01(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=1700.0;
                 break;
             case 18:
-                hf02(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf02(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=1800.0;
                 break;
             case 19:
-                hf03(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf03(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=1900.0;
                 break;
             case 20:
-                hf04(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf04(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=2000.0;
                 break;
             case 21:
-                hf05(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf05(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=2100.0;
                 break;
             case 22:
-                hf06(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1,1);
+                hf06(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1,1);
                 f[0]+=2200.0;
                 break;
             case 23:
@@ -289,11 +277,11 @@ public:
                 f[0]+=2800.0;
                 break;
             case 29:
-                cf07(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1);
+                cf07(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1);
                 f[0]+=2900.0;
                 break;
             case 30:
-                cf08(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle,1);
+                cf08(x.data(), f.data(), nx, m_origin_shift.data(), m_rotation_matrix.data(), m_shuffle.data(), 1);
                 f[0]+=3000.0;
                 break;
             default:
