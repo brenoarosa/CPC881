@@ -8,20 +8,20 @@
 #include <math.h>
 #include <malloc.h>
 #include <vector>
+#include "cec2014.hpp"
 
 
 int main() {
     int i,j,k,n,m,func_num;
-    double *f;
     FILE *fpt;
     char FileName[30];
     m=2;
     n=10;
     char x_str[40];
 
-    std::vector<double> x(m*n, 0);
+    std::vector<vector_double> x(m, vector_double(n, 0));
+    vector_double f(m, 0.0);
 
-    f=(double *)malloc(sizeof(double)  *  m);
     for (i = 0; i < 30; i++)
     {
         func_num=i+1;
@@ -29,36 +29,31 @@ int main() {
 
         sprintf(FileName, "input_data/shift_data_%d.txt", func_num);
         fpt = fopen(FileName,"r");
-        if (fpt==NULL)
-        {
+
+        if (fpt==NULL) {
             printf("\n Error: Cannot open input file for reading \n");
         }
 
-        for(k=0;k<n;k++)
-        {
-                fscanf(fpt, "%s", x_str);
-                x[k] = atof(x_str);
-                //printf("%f\n",x[k]);
+        for(j=0; j < n; j++) {
+            fscanf(fpt, "%s", x_str);
+            x[0][j] = atof(x_str);
+            //printf("%f\n",x[0][j]);
         }
 
         fclose(fpt);
 
-            for (j = 0; j < n; j++)
-            {
-                x[1*n+j]=0.0;
-                //printf("%f\n",x[1*n+j]);
-            }
-
-
-        for (k = 0; k < 1; k++)
-        {
-            objective_instance.fitness_all_population(x.data(), f, m);
-            for (j = 0; j < 2; j++)
-            {
-                printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);
-            }
-            printf("\n");
+        for (j = 0; j < n; j++) {
+            x[1][j] = 0.0;
+            //printf("%f\n",x[1][j]);
         }
+
+        for (j = 0; j < m; j++) {
+            f[j] = objective_instance.fitness(x[j]);
+        }
+        for (j = 0; j < m; j++) {
+            printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);
+        }
+        printf("\n");
 
     }
 
