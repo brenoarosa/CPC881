@@ -52,7 +52,7 @@ int main() {
 
         for (k = 0; k < 1; k++)
         {
-            objective_instance.fitness(x.data(), f, n, m);
+            objective_instance.fitness_all_population(x.data(), f, m);
             for (j = 0; j < 2; j++)
             {
                 printf("f%d(x[%d]) = %f,",func_num,j+1,f[j]);

@@ -27,8 +27,8 @@ public:
     vector_double x_bound;
     char aux_reader[40];
     int ini_flag=0,n_flag,func_flag,*SS;
-    double *OShift;
-    double *M;
+    double *m_origin_shift;
+    double *m_rotation_matrix;
     double *z;
     int nx;
     int func_num;
@@ -74,24 +74,24 @@ public:
         }
 
         if (func_num < 23) {
-            M=(double*)malloc(nx*nx*sizeof(double));
-            if (M==NULL)
+            m_rotation_matrix=(double*)malloc(nx*nx*sizeof(double));
+            if (m_rotation_matrix==NULL)
                 printf("\nError: there is insufficient memory available!\n");
             for (i=0; i<nx*nx; i++)
             {
                 fscanf(fpt, "%s", aux_reader);
-                M[i] = atof(aux_reader);
+                m_rotation_matrix[i] = atof(aux_reader);
             }
         }
 
         else {
-            M=(double*)malloc(cf_num*nx*nx*sizeof(double));
-            if (M==NULL)
+            m_rotation_matrix=(double*)malloc(cf_num*nx*nx*sizeof(double));
+            if (m_rotation_matrix==NULL)
                 printf("\nError: there is insufficient memory available!\n");
             for (i=0; i<cf_num*nx*nx; i++)
             {
                 fscanf(fpt, "%s", aux_reader);
-                M[i] = atof(aux_reader);
+                m_rotation_matrix[i] = atof(aux_reader);
             }
         }
         fclose(fpt);
@@ -104,33 +104,33 @@ public:
         }
 
         if (func_num<23) {
-            OShift=(double *)malloc(nx*sizeof(double));
-            if (OShift==NULL)
+            m_origin_shift=(double *)malloc(nx*sizeof(double));
+            if (m_origin_shift==NULL)
             printf("\nError: there is insufficient memory available!\n");
             for(i=0;i<nx;i++)
             {
                 fscanf(fpt, "%s", aux_reader);
-                OShift[i] = atof(aux_reader);
+                m_origin_shift[i] = atof(aux_reader);
             }
         }
 
         else {
-            OShift=(double *)malloc(nx*cf_num*sizeof(double));
-            if (OShift==NULL)
+            m_origin_shift=(double *)malloc(nx*cf_num*sizeof(double));
+            if (m_origin_shift==NULL)
             printf("\nError: there is insufficient memory available!\n");
             for(i=0;i<cf_num-1;i++)
             {
                 for (j=0;j<nx;j++)
                 {
                     fscanf(fpt, "%s", aux_reader);
-                    OShift[i*nx+j] = atof(aux_reader);
+                    m_origin_shift[i*nx+j] = atof(aux_reader);
                 }
                 fscanf(fpt,"%*[^\n]%*c");
             }
             for (j=0;j<nx;j++)
             {
                 fscanf(fpt, "%s", aux_reader);
-                OShift[(cf_num-1)*nx+j] = atof(aux_reader);
+                m_origin_shift[(cf_num-1)*nx+j] = atof(aux_reader);
             }
 
         }
@@ -173,140 +173,139 @@ public:
 
     virtual ~CEC2014() {
         free(z);
-        free(M);
-        free(OShift);
+        free(m_rotation_matrix);
+        free(m_origin_shift);
         free(SS);
     }
 
-    void fitness(double *x, double *f, int nx, int mx) {
-        int cf_num=10;
+
+    void fitness_all_population(double *x, double *f, int mx) {
         int i,j;
 
         for (i = 0; i < mx; i++) {
-            switch(func_num)
-            {
-            case 1:
-                ellips_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=100.0;
-                break;
-            case 2:
-                bent_cigar_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=200.0;
-                break;
-            case 3:
-                discus_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=300.0;
-                break;
-            case 4:
-                rosenbrock_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=400.0;
-                break;
-            case 5:
-                ackley_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=500.0;
-                break;
-            case 6:
-                weierstrass_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=600.0;
-                break;
-            case 7:
-                griewank_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=700.0;
-                break;
-            case 8:
-                rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
-                f[i]+=800.0;
-                break;
-            case 9:
-                rastrigin_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=900.0;
-                break;
-            case 10:
-                schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,0);
-                f[i]+=1000.0;
-                break;
-            case 11:
-                schwefel_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1100.0;
-                break;
-            case 12:
-                katsuura_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1200.0;
-                break;
-            case 13:
-                happycat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1300.0;
-                break;
-            case 14:
-                hgbat_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1400.0;
-                break;
-            case 15:
-                grie_rosen_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1500.0;
-                break;
-            case 16:
-                escaffer6_func(&x[i*nx],&f[i],nx,OShift,M,1,1);
-                f[i]+=1600.0;
-                break;
-            case 17:
-                hf01(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=1700.0;
-                break;
-            case 18:
-                hf02(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=1800.0;
-                break;
-            case 19:
-                hf03(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=1900.0;
-                break;
-            case 20:
-                hf04(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=2000.0;
-                break;
-            case 21:
-                hf05(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=2100.0;
-                break;
-            case 22:
-                hf06(&x[i*nx],&f[i],nx,OShift,M,SS,1,1);
-                f[i]+=2200.0;
-                break;
-            case 23:
-                cf01(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2300.0;
-                break;
-            case 24:
-                cf02(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2400.0;
-                break;
-            case 25:
-                cf03(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2500.0;
-                break;
-            case 26:
-                cf04(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2600.0;
-                break;
-            case 27:
-                cf05(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2700.0;
-                break;
-            case 28:
-                cf06(&x[i*nx],&f[i],nx,OShift,M,1);
-                f[i]+=2800.0;
-                break;
-            case 29:
-                cf07(&x[i*nx],&f[i],nx,OShift,M,SS,1);
-                f[i]+=2900.0;
-                break;
-            case 30:
-                cf08(&x[i*nx],&f[i],nx,OShift,M,SS,1);
-                f[i]+=3000.0;
-                break;
-            default:
-                throw std::runtime_error("Invalid function ID.");
+            switch(func_num) {
+                case 1:
+                    ellips_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=100.0;
+                    break;
+                case 2:
+                    bent_cigar_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=200.0;
+                    break;
+                case 3:
+                    discus_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=300.0;
+                    break;
+                case 4:
+                    rosenbrock_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=400.0;
+                    break;
+                case 5:
+                    ackley_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=500.0;
+                    break;
+                case 6:
+                    weierstrass_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=600.0;
+                    break;
+                case 7:
+                    griewank_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=700.0;
+                    break;
+                case 8:
+                    rastrigin_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,0);
+                    f[i]+=800.0;
+                    break;
+                case 9:
+                    rastrigin_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=900.0;
+                    break;
+                case 10:
+                    schwefel_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,0);
+                    f[i]+=1000.0;
+                    break;
+                case 11:
+                    schwefel_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1100.0;
+                    break;
+                case 12:
+                    katsuura_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1200.0;
+                    break;
+                case 13:
+                    happycat_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1300.0;
+                    break;
+                case 14:
+                    hgbat_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1400.0;
+                    break;
+                case 15:
+                    grie_rosen_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1500.0;
+                    break;
+                case 16:
+                    escaffer6_func(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1,1);
+                    f[i]+=1600.0;
+                    break;
+                case 17:
+                    hf01(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=1700.0;
+                    break;
+                case 18:
+                    hf02(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=1800.0;
+                    break;
+                case 19:
+                    hf03(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=1900.0;
+                    break;
+                case 20:
+                    hf04(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=2000.0;
+                    break;
+                case 21:
+                    hf05(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=2100.0;
+                    break;
+                case 22:
+                    hf06(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1,1);
+                    f[i]+=2200.0;
+                    break;
+                case 23:
+                    cf01(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2300.0;
+                    break;
+                case 24:
+                    cf02(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2400.0;
+                    break;
+                case 25:
+                    cf03(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2500.0;
+                    break;
+                case 26:
+                    cf04(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2600.0;
+                    break;
+                case 27:
+                    cf05(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2700.0;
+                    break;
+                case 28:
+                    cf06(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,1);
+                    f[i]+=2800.0;
+                    break;
+                case 29:
+                    cf07(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1);
+                    f[i]+=2900.0;
+                    break;
+                case 30:
+                    cf08(&x[i*nx],&f[i],nx,m_origin_shift,m_rotation_matrix,SS,1);
+                    f[i]+=3000.0;
+                    break;
+                default:
+                    throw std::runtime_error("Invalid function ID.");
             }
         }
     }
