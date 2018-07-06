@@ -1,0 +1,13 @@
+compile pagmo with:
+cmake .. -DPAGMO_BUILD_PYGMO=OFF -DPAGMO_BUILD_PAGMO=ON -DCMAKE_INSTALL_PREFIX=/tmp/pagmo_build/
+make install
+
+compile pygmo with:
+cmake . -DPAGMO_BUILD_PYGMO=ON -DPAGMO_BUILD_PAGMO=OFF -DCMAKE_PREFIX_PATH=/tmp/pagmo_build/ -DCMAKE_INSTALL_PREFIX=/home/arosa/.virtualenvs/ml/
+make install
+
+
+examples:
+C++
+compile with:
+g++ -o cec cec.cpp -O3 -DNDEBUG -std=c++11 -pthread -I /tmp/pagmo_build/include/ -I /usr/include/eigen3/

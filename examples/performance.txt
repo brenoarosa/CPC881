@@ -1,0 +1,39 @@
+sudo perf stat -r 10 -d /home/arosa/.virtualenvs/ml/bin/python cec.py
+
+ Performance counter stats for '/home/arosa/.virtualenvs/ml/bin/python cec.py' (10 runs):
+
+      73128.210077      task-clock (msec)         #    7.621 CPUs utilized            ( +-  0.76% )
+             1,351      context-switches          #    0.018 K/sec                    ( +- 17.30% )
+                11      cpu-migrations            #    0.000 K/sec                    ( +- 10.06% )
+            35,356      page-faults               #    0.483 K/sec                    ( +-  0.02% )
+   221,332,596,703      cycles                    #    3.027 GHz                      ( +-  0.07% )  (47.62%)
+   282,246,286,613      instructions              #    1.28  insn per cycle           ( +-  0.02% )  (60.14%)
+    33,590,455,000      branches                  #  459.336 M/sec                    ( +-  0.02% )  (60.66%)
+       703,797,589      branch-misses             #    2.10% of all branches          ( +-  0.10% )  (59.56%)
+    69,884,523,352      L1-dcache-loads           #  955.644 M/sec                    ( +-  0.04% )  (42.37%)
+     1,031,425,267      L1-dcache-load-misses     #    1.48% of all L1-dcache hits    ( +-  1.01% )  (30.05%)
+        39,088,472      LLC-loads                 #    0.535 M/sec                    ( +-  2.36% )  (26.33%)
+         2,024,577      LLC-load-misses           #    5.18% of all LL-cache hits     ( +-  5.78% )  (35.83%)
+
+       9.595383860 seconds time elapsed                                          ( +-  0.65% )
+
+==============================================================================================================
+
+sudo perf stat -r 10 -d ./cec
+
+ Performance counter stats for './cec' (10 runs):
+
+      72228.800238      task-clock (msec)         #    7.868 CPUs utilized            ( +-  0.82% )
+             1,343      context-switches          #    0.019 K/sec                    ( +- 17.97% )
+                 7      cpu-migrations            #    0.000 K/sec                    ( +- 12.17% )
+            16,571      page-faults               #    0.229 K/sec                    ( +-  0.01% )
+   219,184,746,629      cycles                    #    3.035 GHz                      ( +-  0.14% )  (47.48%)
+   282,775,075,347      instructions              #    1.29  insn per cycle           ( +-  0.02% )  (60.00%)
+    32,108,845,972      branches                  #  444.544 M/sec                    ( +-  0.02% )  (60.20%)
+       686,155,229      branch-misses             #    2.14% of all branches          ( +-  0.09% )  (58.94%)
+    69,451,773,520      L1-dcache-loads           #  961.552 M/sec                    ( +-  0.03% )  (40.58%)
+       952,286,759      L1-dcache-load-misses     #    1.37% of all L1-dcache hits    ( +-  0.37% )  (31.09%)
+        27,908,271      LLC-loads                 #    0.386 M/sec                    ( +-  4.20% )  (26.95%)
+           299,664      LLC-load-misses           #    1.07% of all LL-cache hits     ( +-  8.73% )  (35.71%)
+
+       9.180005265 seconds time elapsed                                          ( +-  0.67% )
