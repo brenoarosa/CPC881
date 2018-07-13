@@ -2,6 +2,8 @@
 Evolutionary Programming
 """
 
+import numpy as np
+
 class EP(object):
 
     def __init__(self, memory=True):
@@ -38,7 +40,7 @@ class EP(object):
             opponents =  np.random.choice(possible_opponents, replace=False, size=q)
 
             # count how many wins individual have in its group
-            wins[i] = (fitness[i] > fitness[opponents]).sum()
+            wins[i] = (fitness[i] < fitness[opponents]).sum()
 
         half_population = len(x) // 2
         most_wins = wins.argsort()[-half_population:]
@@ -51,11 +53,11 @@ class EP(object):
 
 
     def evolve(self, population):
-        if not self.sigma or not self.memory:
+        if (self.sigma is None) or not self.memory:
             self.init_sigma(population)
 
         offspring_x, offspring_sigma = self.mutate(population)
-        offspring_f = np.array([population.problem.fitness(population.get_x()[i]) for i in range(len(population))])
+        offspring_f = np.array([population.problem.fitness(offspring_x[i, :]) for i in range(offspring_x.shape[0])])
 
         x = np.vstack((population.get_x(), offspring_x))
         sigma = np.vstack((self.sigma, offspring_sigma))
