@@ -1,0 +1,37 @@
+Este trabalho foi dividido em duas etapas.
+Primeiramente, há a fase de seleção de hiperparâmetros, que consite na variação dos parâmetros do algoritmo e na análise de
+sua resposta nas diferentes funções de avaliação.
+Posteriormente, o melhor conjunto de hiperparâmetros será escolhido para ser comparado tanto com o xNES, com parâmetros
+seguindo os valores recomendados, quanto com o CMA-ES também com seus valores padrões de parâmetros.
+
+O algortimo xNES apresenta 4 parâmetros a serem escolhidos, sendo eles: tamanho da população e as três taxas de aprendizado:
+$\eta_{\mu}$, $\eta_{\sigma}$ e $\eta_{B}$.
+A regra de atualização dos indivíduos é dada por: $x_i \leftarrow \mu + \sigma B \cdot \mathcal{N}_i(0, I)$.
+Portanto, a taxa $\eta_{\mu}$ controla a velocidade de adaptação das médias, enquanto o parâmetro $\eta_{\sigma}$ regula o tamanho
+do passo e $\eta_{B}$ domina a adaptação da matriz de covariância normalizada.
+Para efeitos de simplificação, normalmente se utiliza $\eta_{\mu} = \eta_B$, sendo assim renomeados $\eta_A$.
+Os algoritmos terão dois possíveis critérios de parada: atingir $10000 \times d$ avaliações da função objetivo, sendo $d$
+o número de dimensões; ou obter erro de avaliação menor que $10^{-8}$.
+
+Os valores padrões dos parâmetros são dependentes da dimensionalidade do problema a ser resolvido, sendo eles apresentados
+na Tabela~\ref{tab:xnes_default} retirada de \cite{glasmachers10}.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Parâmetros padrões do xNES para problema de dimensionalidade $d$}
+\label{tab:xnes_default}
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\bfseries parâmetro & \bfseries valor\\
+\hline
+tamanho da população & $4 + 3 \log d$\\
+$\eta_{\mu}$ & $1$\\
+$\eta_{\sigma} = \eta_B$ & $\frac{3}{5} \cdot \frac{3 + \log d}{d \sqrt{d}}$\\
+\hline
+\end{tabular}
+\end{table}
+
+Por fim, utilizou-se as implementações dos algoritmos xNES e CMA-ES da biblioteca de código livre Pygmo~\cite{pygmo},
+desenvolvida pela ESA, Agência Espacial Europeia.
+Para realização deste trabalho as funções de \textit{benchmark} da CEC 2014 foram adaptadas e incluidas na biblioteca.
