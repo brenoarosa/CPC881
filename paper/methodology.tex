@@ -1,10 +1,10 @@
 Este trabalho foi dividido em duas etapas.
-Primeiramente, há a fase de seleção de hiperparâmetros, que consite na variação dos parâmetros do algoritmo e na análise de
+Primeiramente, há a fase de seleção de hiperparâmetros, que consiste na variação dos parâmetros do algoritmo e na análise de
 sua resposta nas diferentes funções de avaliação.
 Posteriormente, o melhor conjunto de hiperparâmetros será escolhido para ser comparado tanto com o xNES, com parâmetros
 seguindo os valores recomendados, quanto com o CMA-ES também com seus valores padrões de parâmetros.
 
-O algortimo xNES apresenta 4 parâmetros a serem escolhidos, sendo eles: tamanho da população e as três taxas de aprendizado:
+O algoritmo xNES apresenta 4 parâmetros a serem escolhidos, sendo eles: tamanho da população e as três taxas de aprendizado:
 $\eta_{\mu}$, $\eta_{\sigma}$ e $\eta_{B}$.
 A regra de atualização dos indivíduos é dada por: $x_i \leftarrow \mu + \sigma B \cdot \mathcal{N}_i(0, I)$.
 Portanto, a taxa $\eta_{\mu}$ controla a velocidade de adaptação das médias, enquanto o parâmetro $\eta_{\sigma}$ regula o tamanho
@@ -34,4 +34,4 @@ $\eta_{\sigma} = \eta_B$ & $\frac{3}{5} \cdot \frac{3 + \log d}{d \sqrt{d}}$\\
 
 Por fim, utilizou-se as implementações dos algoritmos xNES e CMA-ES da biblioteca de código livre Pygmo~\cite{pygmo},
 desenvolvida pela ESA, Agência Espacial Europeia.
-Para realização deste trabalho as funções de \textit{benchmark} da CEC 2014 foram adaptadas e incluidas na biblioteca.
+Para realização deste trabalho as funções de \textit{benchmark} da CEC 2014 foram adaptadas e incluídas na biblioteca.
