@@ -113,7 +113,7 @@ smart-open==1.5.7
 SQLAlchemy==1.2.7
 sqlalchemy-redshift==0.7.1
 tensorboard==1.8.0
-tensorflow==1.8.0
+tensorflow==1.15.2
 termcolor==1.1.0
 terminado==0.8.1
 testpath==0.3.1
