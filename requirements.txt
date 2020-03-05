@@ -129,7 +129,7 @@ traitlets==4.3.2
 twitter==1.18.0
 -e git+git@bitbucket.org:twistsystems/twist_twitter_sentiment.git@af8f426519f48d6eb9039601e98c65193bd1805c#egg=twitter_sentiment
 typed-ast==1.1.0
-urllib3==1.22
+urllib3==1.24.2
 wcwidth==0.1.7
 webencodings==0.5.1
 Werkzeug==0.14.1
